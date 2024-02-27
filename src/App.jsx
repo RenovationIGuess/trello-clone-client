@@ -1,10 +1,11 @@
-import './App.css'
+import Button from '@mui/material/Button'
+import AccessAlarmIcon from '@mui/icons-material/AccessAlarm'
 
 function App() {
-
   return (
     <>
-      Hello World
+      <Button variant="contained">Hello world</Button>
+      <AccessAlarmIcon />
     </>
   )
 }
