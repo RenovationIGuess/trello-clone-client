@@ -11,6 +11,7 @@ import AvatarGroup from '@mui/material/AvatarGroup'
 import Tooltip from '@mui/material/Tooltip'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import Button from '@mui/material/Button'
+import { capitalizeFirstLetter } from '@/utils/formatters'
 
 const CHIP_STYLE = {
   color: 'white',
@@ -32,7 +33,7 @@ const CHIP_STYLE = {
 //   // objectFit: 'cover'
 // }
 
-const BoardBar = () => {
+const BoardBar = ({ board }) => {
   return (
     <Box
       sx={{
@@ -44,8 +45,8 @@ const BoardBar = () => {
         overflowX: 'auto',
         gap: 2,
         backgroundColor: theme =>
-          theme.palette.mode === 'dark' ? '#34495e' : '#1976d2',
-        borderBottom: '1px solid white'
+          theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'
+        // borderBottom: '1px solid white'
       }}
       px={2}
     >
@@ -58,14 +59,19 @@ const BoardBar = () => {
       >
         <Chip
           icon={<DashboardIcon />}
-          label="Trello Default Board"
+          label={board?.title}
           clickable
           sx={CHIP_STYLE}
         />
-        <Chip icon={<VpnLockIcon />} label="Public" clickable sx={CHIP_STYLE} />
+        <Chip
+          icon={<VpnLockIcon />}
+          label={capitalizeFirstLetter(board?.type)}
+          clickable
+          sx={CHIP_STYLE}
+        />
         <Chip
           icon={<AddToDriveIcon />}
-          label="Add to Google Drive"
+          label={'Add to Google Drive'}
           clickable
           sx={CHIP_STYLE}
         />
