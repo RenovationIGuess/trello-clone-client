@@ -8,8 +8,27 @@ import CommentIcon from '@mui/icons-material/Comment'
 import AttachmentIcon from '@mui/icons-material/Attachment'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 const Card = ({ card }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id: card._id, data: { ...card } })
+
+  const dndKitCardStyles = {
+    // touchAction: 'none', // To fix default sensor on mobile but not as effective
+    // Use translate instead of transform to avoid column be stretched to fit other colunms height
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1
+  }
+
   const shouldShowCardActions = useMemo(() => {
     return (
       !!card?.memberIds?.length ||
@@ -20,6 +39,10 @@ const Card = ({ card }) => {
 
   return (
     <MuiCard
+      ref={setNodeRef}
+      style={dndKitCardStyles}
+      {...attributes}
+      {...listeners}
       sx={{
         maxWidth: '100%',
         boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
