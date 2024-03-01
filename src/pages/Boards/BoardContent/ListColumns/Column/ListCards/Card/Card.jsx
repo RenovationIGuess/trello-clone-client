@@ -27,6 +27,7 @@ const Card = ({ card }) => {
     transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1
+    // border: isDragging ? '1px solid #2ecc71' : 'none'
   }
 
   const shouldShowCardActions = useMemo(() => {
@@ -46,12 +47,19 @@ const Card = ({ card }) => {
       sx={{
         maxWidth: '100%',
         boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
-        overflow: 'unset'
+        overflow: card?.fe_placeholder_card ? 'hidden' : 'unset',
+        // display: card?.fe_placeholder_card ? 'none' : 'block'
+        height: card?.fe_placeholder_card ? '0px' : 'auto'
       }}
     >
       {card?.cover && (
         <CardMedia
-          sx={{ height: 140 }}
+          sx={{
+            height: 140,
+            '&.MuiCardMedia-root': {
+              borderRadius: '4px'
+            }
+          }}
           image={card.cover}
           title="green iguana"
         />
