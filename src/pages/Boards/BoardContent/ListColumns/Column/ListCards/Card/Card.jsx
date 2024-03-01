@@ -47,7 +47,9 @@ const Card = ({ card }) => {
       sx={{
         maxWidth: '100%',
         boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
-        overflow: 'unset'
+        overflow: card?.fe_placeholder_card ? 'hidden' : 'unset',
+        // display: card?.fe_placeholder_card ? 'none' : 'block'
+        height: card?.fe_placeholder_card ? '0px' : 'auto'
       }}
     >
       {card?.cover && (

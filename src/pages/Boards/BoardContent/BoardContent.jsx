@@ -21,7 +21,8 @@ import {
 import { arrayMove } from '@dnd-kit/sortable'
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, isEmpty } from 'lodash'
+import { generatePlaceholderCard } from '@/utils/formatters'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
@@ -135,6 +136,11 @@ const BoardContent = ({ board }) => {
           card => card._id !== activeDraggingCardId
         )
 
+        // Add placeholder card if column is empty
+        if (isEmpty(nextActiveColumn.cards)) {
+          nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
+        }
+
         // Update card order ids prop
         nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(
           card => card._id
@@ -159,6 +165,11 @@ const BoardContent = ({ board }) => {
           newCardIndex,
           0,
           rebuild_activeDraggingCardData
+        )
+
+        // Delete placeholder card if exist
+        nextOverColumn.cards = nextOverColumn.cards.filter(
+          card => !card.fe_placeholder_card
         )
 
         // Update card order ids prop
