@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box'
 import ListColumns from './ListColumns/ListColumns'
 import { mapOrder } from '@/utils/sorts'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -9,8 +9,12 @@ import {
   MouseSensor,
   PointerSensor,
   TouchSensor,
+  closestCenter,
   closestCorners,
   defaultDropAnimationSideEffects,
+  getFirstCollision,
+  pointerWithin,
+  rectIntersection,
   useSensor,
   useSensors
 } from '@dnd-kit/core'
@@ -39,6 +43,8 @@ const BoardContent = ({ board }) => {
   const orderedColumns = useMemo(() => {
     return mapOrder(board?.columns, board?.columnOrderIds, '_id')
   }, [board?.columns, board?.columnOrderIds])
+
+  const lastOverId = useRef(null)
 
   const [orderedColumnsState, setOrderedColumnsState] = useState([])
   // At a certain point, only 1 item can be dragged
@@ -328,11 +334,58 @@ const BoardContent = ({ board }) => {
     }
   }
 
+  // Custom collision algorithm
+  const collisionDetectionStrategy = useCallback(
+    args => {
+      // The flickering eff happens when dragging card between columns not dragging columns
+      if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) {
+        return closestCorners({ ...args })
+      }
+
+      const pointerIntersections = pointerWithin(args)
+
+      if (!pointerIntersections.length) return
+
+      // Get array of intersected items with the dragging item
+      // const intersections =
+      //   pointerIntersections.length > 0
+      //     ? pointerIntersections
+      //     : rectIntersection(args)
+
+      // Get the first intersected item
+      let overId = getFirstCollision(pointerIntersections, 'id')
+
+      if (overId) {
+        // If the overId is the column id then we will find the closest cardId
+        const checkColumn = orderedColumns.find(column => column.id === overId)
+        if (checkColumn) {
+          // In this case closestCenter will also works but closestCorners will give a smoother experience
+          overId = closestCorners({
+            ...args,
+            droppableContainers: args.droppableContainers.filter(
+              container =>
+                container.id !== overId &&
+                checkColumn.cardOrderIds?.includes(container.id)
+            )[0]?.id
+          })
+        }
+
+        lastOverId.current = overId
+
+        return [{ id: overId }]
+      }
+
+      return lastOverId.current ? [{ id: lastOverId.current }] : []
+    },
+    [activeDragItemType, orderedColumns]
+  )
+
+  // Only closestCorners will have flickering bug
   return (
     <DndContext
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      collisionDetection={closestCorners}
+      collisionDetection={collisionDetectionStrategy}
       onDragOver={handleDragOver}
       sensors={sensors}
     >
