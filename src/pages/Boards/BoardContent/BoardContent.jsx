@@ -16,6 +16,7 @@ import {
 import { arrayMove } from '@dnd-kit/sortable'
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
+import { cloneDeep } from 'lodash'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
@@ -86,11 +87,17 @@ const BoardContent = ({ board }) => {
 
   const handleDragEnd = event => {
     console.log('Handle Drag End: ', event)
+
+    // Detect if dragging card
+    if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD) {
+      return
+    }
+
     // event.active - dragged item and event.over - dragged into item
     const { active, over } = event
 
     // If dragged to somewhere not supported by the logic
-    if (!over) return
+    if (!active || !over) return
 
     // Only if dragged to another position will we update state
     if (active.id !== over.id) {
@@ -134,10 +141,111 @@ const BoardContent = ({ board }) => {
     setActiveDragItemData(event.active?.data?.current)
   }
 
+  const findColumnByCardId = cardId => {
+    return orderedColumnsState.find(column =>
+      column.cards.some(card => card._id === cardId)
+    )
+  }
+
+  // This will be triggered while dragging item
+  const handleDragOver = event => {
+    console.log('Handle Drag Over: ', event)
+
+    // Detect if dragging column
+    if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) {
+      return
+    }
+
+    // Handle dragging card case - drag between columns for example
+    const { active, over } = event
+
+    if (!active || !over) return
+
+    const {
+      id: activeDraggingCardId,
+      data: { current: activeDraggingCardData }
+    } = active
+    const { id: overCardId } = over
+
+    // Find column base on cardId
+    const activeColumn = findColumnByCardId(activeDraggingCardId)
+    const overColumn = findColumnByCardId(overCardId)
+
+    // If dragged to somewhere not supported by the logic
+    if (!activeColumn || !overColumn) return
+
+    // Handle the case where dragging to different column
+    // In the case of same column, we will handle it in handleDragEnd
+    if (activeColumn._id !== overColumn._id) {
+      setOrderedColumnsState(prev => {
+        // Find the position where the dragging card will be drop into
+        const overCardIndex = overColumn?.cards.findIndex(
+          c => c._id === overCardId
+        )
+
+        // Check if the dragging item is dragged below or on top of the dragged over item
+        let newCardIndex = -1
+
+        const isBelowOverItem =
+          active.rect.current.translated &&
+          active.rect.current.translated.top > over.rect.top + over.rect.height
+
+        const modifier = isBelowOverItem ? 1 : 0
+
+        newCardIndex =
+          overCardIndex >= 0
+            ? overCardIndex + modifier
+            : overColumn?.cards?.length + 1
+
+        // This part is kind of redundant, its purpose is to seperate with the prev data
+        const newColumns = cloneDeep(prev)
+        const nextActiveColumn = newColumns.find(
+          c => c._id === activeColumn._id
+        )
+        const nextOverColumn = newColumns.find(c => c._id === overColumn._id)
+
+        if (nextActiveColumn) {
+          // Remove the dragged card from its previous column
+          nextActiveColumn.cards = nextActiveColumn.cards.filter(
+            card => card._id !== activeDraggingCardId
+          )
+
+          // Update card order ids prop
+          nextActiveColumn.cardOrderIds = nextActiveColumn.cardOrderIds.map(
+            card => card._id
+          )
+        }
+
+        if (nextOverColumn) {
+          // Incase the dragged card is somehow exist in the new column???
+          nextOverColumn.cards = nextOverColumn.cards.filter(
+            card => card._id !== activeDraggingCardId
+          )
+
+          // Insert the dragged card into the new column
+          // nextOverColumn.cards.splice(newCardIndex, 0, activeDraggingCardData)
+          nextOverColumn.cards = nextOverColumn.cards.toSpliced(
+            newCardIndex,
+            0,
+            activeDraggingCardData
+          )
+
+          // Update card order ids prop
+          nextOverColumn.cardOrderIds = nextOverColumn.cards.map(
+            card => card._id
+          )
+        }
+
+        return newColumns
+      })
+    }
+  }
+
   return (
     <DndContext
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragOver={handleDragOver}
       sensors={sensors}
     >
       <Box

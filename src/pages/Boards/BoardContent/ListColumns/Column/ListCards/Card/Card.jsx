@@ -27,6 +27,7 @@ const Card = ({ card }) => {
     transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1
+    // border: isDragging ? '1px solid #2ecc71' : 'none'
   }
 
   const shouldShowCardActions = useMemo(() => {
@@ -51,7 +52,12 @@ const Card = ({ card }) => {
     >
       {card?.cover && (
         <CardMedia
-          sx={{ height: 140 }}
+          sx={{
+            height: 140,
+            '&.MuiCardMedia-root': {
+              borderRadius: '4px'
+            }
+          }}
           image={card.cover}
           title="green iguana"
         />
