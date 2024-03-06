@@ -57,12 +57,14 @@ const BoardBar = ({ board }) => {
           gap: 2
         }}
       >
-        <Chip
-          icon={<DashboardIcon />}
-          label={board?.title}
-          clickable
-          sx={CHIP_STYLE}
-        />
+        <Tooltip title={board?.description}>
+          <Chip
+            icon={<DashboardIcon />}
+            label={board?.title}
+            clickable
+            sx={CHIP_STYLE}
+          />
+        </Tooltip>
         <Chip
           icon={<VpnLockIcon />}
           label={capitalizeFirstLetter(board?.type)}
