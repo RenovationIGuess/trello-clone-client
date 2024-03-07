@@ -3,7 +3,7 @@ import Container from '@mui/material/Container'
 import AppBar from '@/components/AppBar/AppBar'
 import BoardBar from './BoardBar/BoardBar'
 import BoardContent from './BoardContent/BoardContent'
-// import { mockData } from '@/apis/mock-data'
+import { mockData } from '@/apis/mock-data'
 import { fetchBoardDetailsAPI } from '@/apis'
 
 const Board = () => {
@@ -26,8 +26,8 @@ const Board = () => {
       }}
     >
       <AppBar />
-      <BoardBar board={board} />
-      <BoardContent board={board} />
+      <BoardBar board={mockData.board} />
+      <BoardContent board={mockData.board} />
     </Container>
   )
 }

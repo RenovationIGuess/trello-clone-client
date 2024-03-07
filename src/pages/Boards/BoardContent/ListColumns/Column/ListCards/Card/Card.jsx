@@ -49,7 +49,14 @@ const Card = ({ card }) => {
         boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
         overflow: card?.fe_placeholder_card ? 'hidden' : 'unset',
         // display: card?.fe_placeholder_card ? 'none' : 'block'
-        height: card?.fe_placeholder_card ? '0px' : 'auto'
+        height: card?.fe_placeholder_card ? '0px' : 'auto',
+        border: !card?.fe_placeholder_card
+          ? '1px solid transparent'
+          : undefined,
+        '&:hover': {
+          borderColor: theme =>
+            !card?.fe_placeholder_card ? theme.palette.primary.main : undefined
+        }
       }}
     >
       {card?.cover && (

@@ -6,18 +6,19 @@ import {
   DndContext,
   DragOverlay,
   KeyboardSensor,
-  MouseSensor,
   PointerSensor,
-  TouchSensor,
-  closestCenter,
+  // MouseSensor,
+  // TouchSensor,
+  // closestCenter,
   closestCorners,
   defaultDropAnimationSideEffects,
   getFirstCollision,
   pointerWithin,
-  rectIntersection,
+  // rectIntersection,
   useSensor,
   useSensors
 } from '@dnd-kit/core'
+import { MouseSensor, TouchSensor } from '@/customLibs/DndKitSensors'
 import { arrayMove } from '@dnd-kit/sortable'
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
