@@ -5,8 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   DndContext,
   DragOverlay,
-  KeyboardSensor,
   PointerSensor,
+  // KeyboardSensor,
   // MouseSensor,
   // TouchSensor,
   // closestCenter,
@@ -41,7 +41,7 @@ const dropAnimation = {
   })
 }
 
-const BoardContent = ({ board }) => {
+const BoardContent = ({ board, createNewColumn, createNewCard }) => {
   const orderedColumns = useMemo(() => {
     return mapOrder(board?.columns, board?.columnOrderIds, '_id')
   }, [board?.columns, board?.columnOrderIds])
@@ -86,14 +86,14 @@ const BoardContent = ({ board }) => {
     }
   })
 
-  const keyboardSensor = useSensor(KeyboardSensor)
+  // const keyboardSensor = useSensor(KeyboardSensor)
 
   // Combine mouse and touch sensor to have best UX on mobile without getting glitch bugs
   const sensors = useSensors(
     pointerSensor,
     mouseSensor,
-    touchSensor,
-    keyboardSensor
+    touchSensor
+    // keyboardSensor
   )
 
   // TODO: Update state when moving card between different columns
@@ -412,7 +412,11 @@ const BoardContent = ({ board }) => {
             theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'
         }}
       >
-        <ListColumns columns={orderedColumnsState} />
+        <ListColumns
+          columns={orderedColumnsState}
+          createNewColumn={createNewColumn}
+          createNewCard={createNewCard}
+        />
         <DragOverlay dropAnimation={dropAnimation}>
           {!activeDragItemType && null}
           {activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN && (
