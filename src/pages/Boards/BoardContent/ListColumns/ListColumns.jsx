@@ -29,7 +29,7 @@ const ListColumns = ({ columns, createNewColumn, createNewCard }) => {
     }
 
     // Call API
-    await createNewColumn(newColumnData)
+    createNewColumn(newColumnData)
 
     toggleOpenNewColumnForm()
     setNewColumnTitle('')

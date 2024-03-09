@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box'
 import ListColumns from './ListColumns/ListColumns'
-import { mapOrder } from '@/utils/sorts'
+// import { mapOrder } from '@/utils/sorts'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   DndContext,
@@ -41,10 +41,17 @@ const dropAnimation = {
   })
 }
 
-const BoardContent = ({ board, createNewColumn, createNewCard }) => {
+const BoardContent = ({
+  board,
+  createNewColumn,
+  createNewCard,
+  moveColumns,
+  moveCardInTheSameColumn,
+  moveCardToDifferentColumn
+}) => {
   const orderedColumns = useMemo(() => {
-    return mapOrder(board?.columns, board?.columnOrderIds, '_id')
-  }, [board?.columns, board?.columnOrderIds])
+    return board?.columns
+  }, [board?.columns])
 
   const lastOverId = useRef(null)
 
@@ -57,6 +64,7 @@ const BoardContent = ({ board, createNewColumn, createNewCard }) => {
   // TODO: Use when dragging a card - value is the data of the droppable column
   const [oldColumn, setOldColumn] = useState(null)
 
+  // Sorted in the parent component (_id.jsx)
   useEffect(() => {
     setOrderedColumnsState(orderedColumns)
   }, [orderedColumns])
@@ -104,7 +112,8 @@ const BoardContent = ({ board, createNewColumn, createNewCard }) => {
     over,
     activeColumn,
     activeDraggingCardId,
-    activeDraggingCardData
+    activeDraggingCardData,
+    triggerFrom
   ) => {
     setOrderedColumnsState(prev => {
       // Find the position where the dragging card will be drop into
@@ -177,6 +186,16 @@ const BoardContent = ({ board, createNewColumn, createNewCard }) => {
         nextOverColumn.cardOrderIds = nextOverColumn.cards.map(card => card._id)
       }
 
+      // Call API to update card order ids only when handling in handleDragEnd
+      if (triggerFrom === 'handleDragEnd') {
+        moveCardToDifferentColumn(
+          activeDraggingCardId,
+          oldColumn._id,
+          nextOverColumn._id,
+          newColumns
+        )
+      }
+
       return newColumns
     })
   }
@@ -234,6 +253,12 @@ const BoardContent = ({ board, createNewColumn, createNewCard }) => {
 
           return newColumns
         })
+
+        moveCardInTheSameColumn(
+          oldColumn._id,
+          dndOrderedCards,
+          dndOrderedCardIds
+        )
       } else {
         // Handle the case where dragging to different column
         moveCardBetweenDifferentColumns(
@@ -243,7 +268,8 @@ const BoardContent = ({ board, createNewColumn, createNewCard }) => {
           over,
           activeColumn,
           activeDraggingCardId,
-          activeDraggingCardData
+          activeDraggingCardData,
+          'handleDragEnd'
         )
       }
     }
@@ -270,10 +296,9 @@ const BoardContent = ({ board, createNewColumn, createNewCard }) => {
           overColumn
         )
 
-        // This is the data to be updated when call API
-        // const dndOrderedColumnIds = dndOrderedColumns.map(column => column._id)
-
         setOrderedColumnsState(dndOrderedColumns)
+
+        moveColumns(dndOrderedColumns)
       }
     }
 
@@ -341,7 +366,8 @@ const BoardContent = ({ board, createNewColumn, createNewCard }) => {
         over,
         activeColumn,
         activeDraggingCardId,
-        activeDraggingCardData
+        activeDraggingCardData,
+        'handleDragOver'
       )
     }
   }
