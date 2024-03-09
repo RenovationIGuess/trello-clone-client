@@ -17,7 +17,7 @@ import AddCardIcon from '@mui/icons-material/AddCard'
 import Button from '@mui/material/Button'
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import ListCards from './ListCards/ListCards'
-import { mapOrder } from '@/utils/sorts'
+// import { mapOrder } from '@/utils/sorts'
 import { CSS } from '@dnd-kit/utilities'
 import { useSortable } from '@dnd-kit/sortable'
 import { TextField } from '@mui/material'
@@ -49,7 +49,7 @@ const Column = ({ column, createNewCard }) => {
       title: newCardTitle,
       columnId: column._id
     }
-    await createNewCard(newCardData)
+    createNewCard(newCardData)
 
     toggleOpenNewCardForm()
     setNewCardTitle('')
@@ -68,8 +68,8 @@ const Column = ({ column, createNewCard }) => {
   const open = Boolean(anchorEl)
 
   const orderedCards = useMemo(() => {
-    return mapOrder(column?.cards, column?.cardOrderIds, '_id')
-  }, [column?.cards, column?.cardOrderIds])
+    return column.cards
+  }, [column?.cards])
 
   const handleClick = event => {
     setAnchorEl(event.currentTarget)
